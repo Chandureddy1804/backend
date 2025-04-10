@@ -1,0 +1,43 @@
+<form id="review-form">
+  <input type="text" id="name" placeholder="Your Name" required>
+  <textarea id="review" placeholder="Your Review" required></textarea>
+  <button type="submit">Submit Review</button>
+</form>
+
+<div id="reviews-container"></div>
+
+<script>
+  const form = document.getElementById("review-form");
+  const reviewsContainer = document.getElementById("reviews-container");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("name").value;
+    const review = document.getElementById("review").value;
+
+    const response = await fetch("http://localhost:8080/api/reviews", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, review })
+    });
+
+    if (response.ok) {
+      alert("Review submitted!");
+      form.reset();
+      loadReviews();
+    }
+  });
+
+  async function loadReviews() {
+    const response = await fetch("http://localhost:8080/api/reviews");
+    const reviews = await response.json();
+    reviewsContainer.innerHTML = reviews.map(r => `
+      <div class="review">
+        <strong>${r.name}</strong><br>${r.review}<br><small>${r.submittedAt}</small>
+      </div>
+    `).join('');
+  }
+
+  window.onload = loadReviews;
+</script>
+
